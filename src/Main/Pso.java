@@ -3,8 +3,12 @@ package Main;
 import java.util.Random;
 
 import Functions.Acley;
+import Functions.Griewank;
+import Functions.Michalewicz;
 import Functions.Rastrigin;
 import Functions.Rosenbrock;
+import Functions.Schwefel;
+import Functions.Sphere;
 import PsoComponents.Particle;
 import PsoComponents.Swarm;
 import Topologies.MultiNeighborsOnMatriz;
@@ -21,14 +25,15 @@ public class Pso implements PsoConstants{
 	private double[] nAcceleration; //neighborhood accelation
 	private double currValue; //current best value
 	private double bestSoFar; //best value so far
-
+	private double average = 0;
 	private Random rand = new Random();
 	private boolean globalNeighborhood = false;
+	private String topology;
+	private double[] arrayIterations = new double[ITERATIONS];
 	
-	
-	
-	public Pso(int swarmSize){
+	public Pso(int swarmSize, String topology){
 		this.swarm = new Swarm(swarmSize);
+		this.topology = topology;
 	}
 	
 	
@@ -41,13 +46,13 @@ public class Pso implements PsoConstants{
 		double currVal=Double.MAX_VALUE;;
 		for(int i=0; i<swarmSize; i++) {
 			for(int j=0; j<DIMENSIONS; j++){
-				swarm.getSwarm()[i].getPosition()[j] = 15.0 + rand.nextDouble()*(30.0-15.0);
+				swarm.getSwarm()[i].getPosition()[j] = -5.0 + rand.nextDouble()*(5 - (-5.0));
 				swarm.getSwarm()[i].getpBestPos()[j] = swarm.getSwarm()[i].getPosition()[j];
 				swarm.getSwarm()[i].getVelocity()[j] = -2.0 + rand.nextDouble()*(2.0+2.0);
 			}
 			double pBesValue = Rosenbrock.rosenbrockEvaluate(this.swarm, i);
 			swarm.getSwarm()[i].setpBestValue(pBesValue);
-			if(TOPOLOGY  == "Global"){
+			if(this.topology  == "Global"){
 				currVal = eval(i);
 				if(currVal < nBestValue){
 					nBestValue=currVal;
@@ -72,7 +77,7 @@ public class Pso implements PsoConstants{
 			}
 			double pBestValue = Acley.ack(this.swarm, i);
 			swarm.getSwarm()[i].setpBestValue(pBestValue);
-			if(TOPOLOGY == "Global"){
+			if(this.topology == "Global"){
 				currVal=eval(i);
 				if(currVal < nBestValue){
 					nBestValue=currVal;
@@ -85,29 +90,121 @@ public class Pso implements PsoConstants{
 	
 	
 	//Rastrigin: 
-		//	initializes particle's position: [2.56,5.12]
-		//						   velocity: [-2,4]
-		public  void initRas(){
-			int swarmSize = this.swarm.getSwarm().length;
-			double currVal=Double.MAX_VALUE;;
-			for(int i=0; i<swarmSize; i++) {	
-				for(int j=0; j<DIMENSIONS; j++){
-					swarm.getSwarm()[i].getPosition()[j] = 2.56 + rand.nextDouble()*((5.12-2.56));
-					swarm.getSwarm()[i].getVelocity()[j] = -2.0 + rand.nextDouble()*((4.0+2.0));
+	//	initializes particle's position: [2.56,5.12]
+	//						   velocity: [-2,4]
+	public  void initRas(){
+		int swarmSize = this.swarm.getSwarm().length;
+		double currVal=Double.MAX_VALUE;;
+		for(int i=0; i<swarmSize; i++) {	
+			for(int j=0; j<DIMENSIONS; j++){
+				swarm.getSwarm()[i].getPosition()[j] = 2.56 + rand.nextDouble()*((5.12-2.56));
+				swarm.getSwarm()[i].getpBestPos()[j] = swarm.getSwarm()[i].getPosition()[j]; //adicionado aqui
+				swarm.getSwarm()[i].getVelocity()[j] = -2.0 + rand.nextDouble()*((2.0+2.0));
+			}
+			System.arraycopy(swarm.getSwarm()[i].getPosition(), 0, swarm.getSwarm()[i].getpBestPos(), 0, DIMENSIONS);
+			double pBestValue = Rastrigin.ras(this.swarm, i);
+			swarm.getSwarm()[i].setpBestValue(pBestValue);
+			if(this.topology == "Global"){
+				currVal=eval(i);
+				if(currVal < nBestValue){
+					nBestValue=currVal;
+					System.arraycopy(swarm.getSwarm()[i].getPosition(), 0, nBestPos, 0, DIMENSIONS);
 				}
-				System.arraycopy(swarm.getSwarm()[i].getPosition(), 0, swarm.getSwarm()[i].getpBestPos(), 0, DIMENSIONS);
-				double pBestValue = Rastrigin.ras(this.swarm, i);
-				swarm.getSwarm()[i].setpBestValue(pBestValue);
-				if(TOPOLOGY == "Global"){
-					currVal=eval(i);
-					if(currVal < nBestValue){
-						nBestValue=currVal;
-						System.arraycopy(swarm.getSwarm()[i].getPosition(), 0, nBestPos, 0, DIMENSIONS);
-					}
-				}
-			}	
-		}
+			}
+		}	
+	}
 	
+	//	Sphere
+	//	initializes particle's position: [2.56,5.12]
+	//						   velocity: [-2,4]
+	
+	public void initSphere(){
+		int swarmSize = this.swarm.getSwarm().length;
+		double currVal=Double.MAX_VALUE;
+		for(int i=0; i<swarmSize; i++) {		
+			for(int j=0; j<DIMENSIONS; j++){
+				swarm.getSwarm()[i].getPosition()[j] = -50 + rand.nextDouble()*(100-(-50));
+				swarm.getSwarm()[i].getpBestPos()[j] = swarm.getSwarm()[i].getPosition()[j];
+				swarm.getSwarm()[i].getVelocity()[j] = -2.0 + rand.nextDouble()*(4.0+2.0);
+			}
+			double pBestValue = Sphere.Sp(this.swarm, i);
+			swarm.getSwarm()[i].setpBestValue(pBestValue);
+			if(this.topology == "Global"){
+				currVal=eval(i);
+				if(currVal < nBestValue){
+					nBestValue=currVal;
+					System.arraycopy(swarm.getSwarm()[i].getPosition(), 0, nBestPos, 0, DIMENSIONS);
+				}
+			}
+		}
+	}
+	
+	//Michalewicz
+	//	initializes particle's position: [2.56,5.12]
+	//						   velocity: [-2,4]
+	public void initMichalewicz(){
+		int swarmSize = this.swarm.getSwarm().length;
+		double currVal=Double.MAX_VALUE;
+		for(int i=0; i<swarmSize; i++) {		
+			for(int j=0; j<DIMENSIONS; j++){
+				swarm.getSwarm()[i].getPosition()[j] = 2.56 + rand.nextDouble()*(5.12-2.56);
+				swarm.getSwarm()[i].getpBestPos()[j] = swarm.getSwarm()[i].getPosition()[j];
+				swarm.getSwarm()[i].getVelocity()[j] = -2.0 + rand.nextDouble()*(4.0+2.0);
+			}
+			double pBestValue = Michalewicz.Mi(this.swarm, i);
+			swarm.getSwarm()[i].setpBestValue(pBestValue);
+			if(this.topology == "Global"){
+				currVal=eval(i);
+				if(currVal < nBestValue){
+					nBestValue=currVal;
+					System.arraycopy(swarm.getSwarm()[i].getPosition(), 0, nBestPos, 0, DIMENSIONS);
+				}
+			}
+		}
+	}
+	
+	
+	public void initSchwefel(){
+		int swarmSize = this.swarm.getSwarm().length;
+		double currVal=Double.MAX_VALUE;
+		for(int i=0; i<swarmSize; i++) {		
+			for(int j=0; j<DIMENSIONS; j++){
+				swarm.getSwarm()[i].getPosition()[j] = -2 + rand.nextDouble()*(5 - (-2));
+				swarm.getSwarm()[i].getpBestPos()[j] = swarm.getSwarm()[i].getPosition()[j];
+				swarm.getSwarm()[i].getVelocity()[j] = -2.0 + rand.nextDouble()*(4.0+2.0);
+			}
+			double pBestValue = Schwefel.Sch(this.swarm, i);
+			swarm.getSwarm()[i].setpBestValue(pBestValue);
+			if(this.topology == "Global"){
+				currVal=eval(i);
+				if(currVal < nBestValue){
+					nBestValue=currVal;
+					System.arraycopy(swarm.getSwarm()[i].getPosition(), 0, nBestPos, 0, DIMENSIONS);
+				}
+			}
+		}
+	}
+	
+	public void initGriewank(){
+		int swarmSize = this.swarm.getSwarm().length;
+		double currVal=Double.MAX_VALUE;
+		for(int i=0; i<swarmSize; i++) {		
+			for(int j=0; j<DIMENSIONS; j++){
+				swarm.getSwarm()[i].getPosition()[j] = 16.0 + rand.nextDouble()*(32.0-16.0);
+				swarm.getSwarm()[i].getpBestPos()[j] = swarm.getSwarm()[i].getPosition()[j];
+				swarm.getSwarm()[i].getVelocity()[j] = -2.0 + rand.nextDouble()*(4.0+2.0);
+			}
+			double pBestValue = Griewank.Gri(this.swarm, i);
+			swarm.getSwarm()[i].setpBestValue(pBestValue);
+			if(this.topology == "Global"){
+				currVal=eval(i);
+				if(currVal < nBestValue){
+					nBestValue=currVal;
+					System.arraycopy(swarm.getSwarm()[i].getPosition(), 0, nBestPos, 0, DIMENSIONS);
+				}
+			}
+		}
+	}
 	
 	
 	//evaluates the value of a particle of index i
@@ -123,8 +220,20 @@ public class Pso implements PsoConstants{
 			case "Rastrigin":
 				value=Rastrigin.ras(this.swarm, i);
 				break;
+			case "Sphere":
+				value = Sphere.Sp(this.swarm, i);
+				break;
+			case "Michalewicz":
+				value = Michalewicz.Mi(this.swarm, i);
+				break;
+			case "Schwefel":
+				value = Schwefel.Sch(this.swarm, i);
+				break;
+			case "Griewank":
+				value = Griewank.Gri(this.swarm, i);
+				break;
 			default: 
-				System.out.println("Function must match 'rok', 'ack', or 'ras'");
+				System.out.println("Function must match 'Rosenbrock', 'Acley', Sphere, Michalewicz, Schwefel, Griewank or 'Rastrigin'");
 				System.exit(1); 
 		}
 		return value;
@@ -133,7 +242,7 @@ public class Pso implements PsoConstants{
 	
 	//initializes position and velocity of all the particles
 	public void init(){
-		if(TOPOLOGY == "Global")
+		if(this.topology == "Global")
 			globalNeighborhood=true;
 		switch(FUNCTION){
 			case "Rosenbrock":
@@ -145,8 +254,20 @@ public class Pso implements PsoConstants{
 			case "Rastrigin":
 				initRas();
 				break;
+			case "Sphere":
+				initSphere();
+				break;
+			case "Michalewicz":
+				initMichalewicz();
+				break;
+			case "Schwefel":
+				initSchwefel();
+				break;
+			case "Griewank":
+				initGriewank();
+				break;
 			default: 
-				System.out.println("Function must match 'Rosenbrock', 'Acley', or 'Rastrigin'");
+				System.out.println("Function must match 'Rosenbrock', 'Acley', or 'Rastrigin', Sphere, Schwefel, Griewank or Michalewicz");
 				System.exit(1); 
 		}
 	}
@@ -213,10 +334,17 @@ public class Pso implements PsoConstants{
 			}
 			//System.err.print("Iteration:" + i + "  ");
 			if(print){
-				System.out.println();	
-				System.out.printf("%f, ", bestSoFar);
+				//System.out.println();
+				System.out.println(bestSoFar);
+				//System.out.println();
+				//System.out.printf("%f, ", bestSoFar);
+				
 			}
+			average += bestSoFar;
+			arrayIterations[i] = bestSoFar;
 		}
+		//System.out.println("Best so far:" + bestSoFar);
+		//System.out.println("Average:" + (average/iterations));
 	}
 	
 	
@@ -257,7 +385,7 @@ public class Pso implements PsoConstants{
 		init();
 		
 		//INIT SWARM'S NEIGHBORS WITH THE TOPOLOGY SELECTED
-		switch(TOPOLOGY){
+		switch(topology){
 			case "Global":
 				globalNeighborhood = true;
 				break;
@@ -281,13 +409,23 @@ public class Pso implements PsoConstants{
 		//System.out.println("-------------------------");
 		//swarm.printSwarmsNeughbors();
 		//swarm.prinSwarmpBestPosition();
-		System.out.println();
-		System.err.printf("\nfinal best: %f\n", bestSoFar);
+		//System.out.println();
+		//System.err.printf("\nfinal best: %f\n", bestSoFar);
 	}
 	
 	public double getBestSoFar(){
 		return this.bestSoFar;
 	}
 	
+	public double getAverage(){
+		return this.average / ITERATIONS;
+	}
 	
+	public String getTopology(){
+		return this.topology;
+	}
+	
+	public double[] getArrayToGraphic(){
+		return this.arrayIterations;
+	}
 }

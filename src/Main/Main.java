@@ -1,18 +1,31 @@
 package Main;
 
+
+import javax.swing.SwingUtilities;
+
+import Averages.StandardDeviation;
+import Graphic.LineChart;
+
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		double average = 0;
-		for(int i = 0; i < 101; i++){
-			System.out.println("ITERATION:" + i);
-			Pso pso = new Pso(49);
-			pso.runWithArgs();
-			average += pso.getBestSoFar();
-		}
 		
-		System.out.println();
-		System.out.println("AVERAGE:" + average/100);
+		
+		SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+            	StandardDeviation gl = new StandardDeviation(100, "Global");
+            	gl.sD();
+            	StandardDeviation ri = new StandardDeviation(100, "Ring");
+            	ri.sD();
+            	StandardDeviation mn = new StandardDeviation(100, "MNOM");
+        		mn.sD();
+        		
+        		
+                new LineChart(mn.getArrayToGraph(), gl.getArrayToGraph(), ri.getArrayToGraph()).setVisible(true);
+            	
+            }
+        });
+		
 	}
 }

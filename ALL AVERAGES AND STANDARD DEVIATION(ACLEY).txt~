@@ -1,0 +1,22 @@
+FUNCTION: ACLEY
+
+----------------------------------
+TOPOLOGY:Global
+AVERAGE:15.208828090517546
+Standard Deviation:1.3224729647873816
+----------------------------------
+TOPOLOGY:Ring
+AVERAGE:11.100211061848631
+Standard Deviation:0.5081291771098945
+----------------------------------
+TOPOLOGY:Random
+AVERAGE:12.998595797453286
+Standard Deviation:2.255054369660438
+----------------------------------
+TOPOLOGY:VonNeumann
+AVERAGE:10.372204522488664
+Standard Deviation:0.2530196347877771
+----------------------------------
+TOPOLOGY:MNOM
+AVERAGE:10.519284653646519
+Standard Deviation:0.4583511627467928
